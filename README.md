@@ -138,3 +138,7 @@ You can configure the logger statically.
 
 #include <operation_log.h>
 ```
+
+### Compile Logging Out
+
+To disable logging at compile time, define the `OPERATION_LOG_DISABLE` macro.
