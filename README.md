@@ -44,6 +44,8 @@ OPERATION_LOG_MESSAGE_STREAM(<<
 Here's a verbose example:
 
 ```C++
+#include <operation_log.h>
+
 template <class HDS>
 class Sphere_3_TessalationBuilder : public CGAL::Modifier_base<HDS>
 {
@@ -77,18 +79,12 @@ private:
     {
         OPERATION_LOG_ENTER_FUNCTION(oplog_func, latitude / M_PI, longitude / M_PI);
 
-        double longitude_circle_r = circumsphere_r * cos(latitude);
-        Kernel::Point_3 point(
-                longitude_circle_r * cos(longitude),
-                longitude_circle_r * sin(longitude),
-                circumsphere_r * sin(latitude)
-            );
-        
+        // . . . code . . .
+
         OPERATION_LOG_MESSAGE_STREAM(<<
             "Vertex " << vertex_count << ": " << point);
 
-        builder.add_vertex(point);
-        vertex_count++;
+        // . . . code . . .
 
         OPERATION_LOG_LEAVE_FUNCTION(oplog_func);
     }
