@@ -10,9 +10,38 @@ It has a basic plain-text formatter.  Others can be added.
 * C++11 or later.
 * Tested only with GCC.
 
+## Installation
+
+### Ubuntu 16
+
+```BASH
+./build_packages.sh
+sudo dpkg -i build/liboperationlog_0.1.0.deb
+```
+
 ## Example
 
 ### Source Sample
+
+You can use macros such as the following:
+
+```C++
+OPERATION_LOG_ENTER_NO_ARG_FUNCTION(oplog_func)
+
+OPERATION_LOG_ENTER_FUNCTION(oplog_func, var1, var2)
+
+OPERATION_LOG_LEAVE_FUNCTION(oplog_func)
+
+OPERATION_LOG_DUMP_VARS(var1, var2)
+
+OPERATION_LOG_MESSAGE("1/1/1: There was a world.")
+
+OPERATION_LOG_MESSAGE_STREAM(<<
+    "This is like std::ostream: " << var1 << ", " << var2 << ", " << var3)
+
+```
+
+Here's a verbose example:
 
 ```C++
 template <class HDS>
@@ -108,9 +137,8 @@ You can configure the logger statically.
     }; \
     \
     static MessageFilter message_filter; \
-    std::cout << "message_filter: " << (&message_filter) << std::endl; \
     \
     log.set_message_filter_predicate(message_filter);
 
 #include <operation_log.h>
-``` 
+```
