@@ -4,9 +4,24 @@
 #include <iostream>
 #include <stack>
 
+#include "forward_declarations.h"
 #include "operation_log.h"
 #include "plain_text_formatter.h"
 #include "predicate.h"
+
+
+// Forward declaration of an initialization function for the default operation
+// log.  User code can define the implementation later.
+#ifdef OPERATION_LOG_INIT_FUNCTION_NAME
+#    ifdef OPERATION_LOG_INIT_FUNCTION_NAMESPACE
+namespace OPERATION_LOG_INIT_FUNCTION_NAMESPACE
+{
+    void OPERATION_LOG_INIT_FUNCTION_NAME(operation_log::DefaultOperationLog &log);
+}
+#    else // OPERATION_LOG_INIT_FUNCTION_NAMESPACE
+void OPERATION_LOG_INIT_FUNCTION_NAME(operation_log::DefaultOperationLog &log);
+#    endif // OPERATION_LOG_INIT_FUNCTION_NAMESPACE
+#endif // OPERATION_LOG_INIT_FUNCTION_NAME
 
 namespace operation_log
 {
@@ -31,11 +46,10 @@ class OperationLogInstance
 {
 private:
     DefaultMessageFilter message_filter;
-    OperationLog<PlainTextFormatter, RunTimePredicate<const std::stack<FunctionInfo>&>>
-        log;
+    DefaultOperationLog log;
 
 public:
-    static OperationLog<PlainTextFormatter, RunTimePredicate<const std::stack<FunctionInfo>&>>& get()
+    static DefaultOperationLog& get()
     {
         static OperationLogInstance instance_builder;
 
@@ -46,8 +60,18 @@ public:
     : log(std::cout, message_filter)
     {
 #ifdef OPERATION_LOG_INIT_CODE
+        // Run the user-defined initialization code:
         OPERATION_LOG_INIT_CODE
 #endif // OPERATION_LOG_INIT_CODE
+
+#ifdef OPERATION_LOG_INIT_FUNCTION_NAME
+        // Call the user-defined initialization function:
+#    ifdef OPERATION_LOG_INIT_FUNCTION_NAMESPACE
+        OPERATION_LOG_INIT_FUNCTION_NAMESPACE::OPERATION_LOG_INIT_FUNCTION_NAME(log);
+#    else // OPERATION_LOG_INIT_FUNCTION_NAMESPACE
+        OPERATION_LOG_INIT_FUNCTION_NAME(log);
+#    endif // OPERATION_LOG_INIT_FUNCTION_NAMESPACE
+#endif // OPERATION_LOG_INIT_FUNCTION_NAME
     }
 };
 

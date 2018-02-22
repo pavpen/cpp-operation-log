@@ -113,7 +113,43 @@ longitude_difference_subdiv = 1
 
 You can configure the logger statically.
 
-### Ugly Static Configuration
+### Using a Configuration Function
+
+```C++
+#define OPERATION_LOG_INIT_FUNCTION_NAMESPACE  output_sphere_config
+#define OPERATION_LOG_INIT_FUNCTION_NAME       operation_log_init
+
+#include <operation_log.h>
+
+namespace output_sphere_config
+{
+
+void operation_log_init(operation_log::DefaultOperationLog &log)
+{
+    // Filter operation log messages:
+    class MessageFilter : public operation_log::RunTimePredicate<const std::stack<operation_log::FunctionInfo>&>
+    {
+    public:
+        bool operator()(const std::stack<operation_log::FunctionInfo>& call_stack)
+        {
+            const std::string func_name = call_stack.top().get_short_name();
+
+            return func_name == "advance_prev_parallel_vertex" ||
+                func_name == "add_vertex";
+        }
+    };
+
+    // Make sure the message_filter instance isn't destroyied when this
+    // function returns:
+    static MessageFilter message_filter;
+
+    log.set_message_filter_predicate(message_filter);
+}
+
+}
+```
+
+### Using Ugly Static Configuration Code
 
 ```C++
 // Operation log:
