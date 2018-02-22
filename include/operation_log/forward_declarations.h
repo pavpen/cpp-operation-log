@@ -8,7 +8,7 @@ namespace operation_log
 
 class FunctionInfo;
 
-class PlainTextFormatter;
+class FormatterBase;
 
 template <typename... ArgTs>
 class RunTimePredicate;
@@ -18,7 +18,7 @@ class OperationLog;
 
 typedef
     OperationLog<
-        PlainTextFormatter,
+        FormatterBase,
         RunTimePredicate<
             const std::stack<FunctionInfo>&
         >

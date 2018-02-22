@@ -10,6 +10,7 @@
 #include <operation_log/cpp_parsing.h>
 #include <operation_log/function_entry.h>
 #include <operation_log/function_info.h>
+#include <operation_log/html_formatter.h>
 #include <operation_log/message_stream.h>
 #include <operation_log/operation_log_instance.h>
 #include <operation_log/operation_log.h>

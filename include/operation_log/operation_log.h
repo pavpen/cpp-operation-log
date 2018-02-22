@@ -18,20 +18,25 @@ template <class Formatter, class MessageFilterPredicate>
 class OperationLog
 {
 private:
-    Formatter formatter;
+    Formatter *formatter;
     std::reference_wrapper<MessageFilterPredicate> message_filter_predicate;
     std::stack<FunctionInfo> call_stack;
 
 public:
-    OperationLog(std::ostream &output, MessageFilterPredicate &message_filter_predicate)
-    : formatter(output),
+    OperationLog(Formatter &formatter, MessageFilterPredicate &message_filter_predicate)
+    : formatter(&formatter),
     message_filter_predicate(message_filter_predicate)
     {}
 
 public:
     Formatter& get_formatter()
     {
-        return formatter;
+        return *formatter;
+    }
+
+    void set_formatter(Formatter& value)
+    {
+        formatter = &value;
     }
 
     MessageFilterPredicate& get_message_filter_predicate()
@@ -46,19 +51,19 @@ public:
 
     std::ostream& get_output_stream()
     {
-        return formatter.get_output_stream();
+        return formatter->get_output_stream();
     }
 
     void set_output_stream(std::ostream &value)
     {
-        formatter.set_output_stream(value);
+        formatter->set_output_stream(value);
     }
 
     void write_message(std::string message)
     {
         if (message_filter_predicate.get()(call_stack))
         {
-            formatter.write_message(message);
+            formatter->write_message(message);
         }
     }
 
@@ -67,7 +72,7 @@ public:
     {
         if (message_filter_predicate.get()(call_stack))
         {
-            formatter.dump_vars(names, vars...);
+            formatter->dump_vars(names, vars...);
         }
     }
 
@@ -77,18 +82,18 @@ public:
         call_stack.push(function_info);
         if (message_filter_predicate.get()(call_stack))
         {
-            formatter.log_function_entry(function_info, args...);
+            formatter->log_function_entry(function_info, args...);
         }
     }
 
     void enter_function()
     {
-        formatter.enter_function();
+        formatter->enter_function();
     }
 
     void exit_function()
     {
-        formatter.exit_function();
+        formatter->exit_function();
         call_stack.pop();
     }
 };

@@ -46,6 +46,7 @@ class OperationLogInstance
 {
 private:
     DefaultMessageFilter message_filter;
+    PlainTextFormatter formatter;
     DefaultOperationLog log;
 
 public:
@@ -57,7 +58,8 @@ public:
     }
 
     OperationLogInstance()
-    : log(std::cout, message_filter)
+    : formatter(std::cout),
+    log(formatter, message_filter)
     {
 #ifdef OPERATION_LOG_INIT_CODE
         // Run the user-defined initialization code:
