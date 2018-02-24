@@ -35,6 +35,16 @@ public:
         this->FormatterBase::exit_function();
     }
 
+    std::string get_style_code()
+    {
+        return style_code;
+    }
+
+    void set_style_code(std::string html_code)
+    {
+        style_code = html_code;
+    }
+
 private:
     bool was_header_written;
     std::string log_name;
