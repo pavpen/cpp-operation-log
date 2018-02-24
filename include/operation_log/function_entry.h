@@ -32,7 +32,6 @@ public:
     : function_info(pretty_function, "")
     {
         OperationLogInstance::get().log_function_entry(function_info);
-        OperationLogInstance::get().enter_function();
     }
 
     template <typename... ArgTs>
@@ -43,12 +42,11 @@ public:
     {
         OperationLogInstance::get().log_function_entry(
             function_info, args...);
-        OperationLogInstance::get().enter_function();
     }
 
     ~FunctionEntry()
     {
-        OperationLogInstance::get().exit_function();
+        OperationLogInstance::get().log_function_exit(function_info);
     }
 
     // This method is used just to keep the object from being destroyed until

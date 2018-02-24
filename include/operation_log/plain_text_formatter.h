@@ -24,7 +24,7 @@ public:
 protected:
     void write_message_prefix() override
     {
-        for (int c = 0; c < 2 * stack_depth; ++c)
+        for (int c = 0; c < 2 * filtered_stack_depth; ++c)
         {
             output.get() << ' ';
         }

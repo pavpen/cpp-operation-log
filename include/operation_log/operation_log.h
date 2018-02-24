@@ -84,15 +84,15 @@ public:
         {
             formatter->log_function_entry(function_info, args...);
         }
-    }
-
-    void enter_function()
-    {
         formatter->enter_function();
     }
 
-    void exit_function()
+    void log_function_exit(FunctionInfo &function_info)
     {
+        if (message_filter_predicate.get()(call_stack))
+        {
+            formatter->log_function_exit(function_info);
+        }
         formatter->exit_function();
         call_stack.pop();
     }

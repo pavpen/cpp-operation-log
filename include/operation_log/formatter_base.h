@@ -66,11 +66,18 @@ public:
             write_function_extra_info(function_info.get_extra_information());
         }
         write_function_suffix();
+        ++filtered_stack_depth;
     }
 
     void enter_function()
     {
         ++stack_depth;
+    }
+
+    void log_function_exit(FunctionInfo &function_info)
+    {
+        write_function_exit(function_info);
+        --filtered_stack_depth;
     }
 
     void exit_function()
@@ -85,7 +92,8 @@ protected:
     std::reference_wrapper<std::ostream> output;
     int var_i;
     int argument_i;
-    int stack_depth;
+    int stack_depth = 0;
+    int filtered_stack_depth = 0;
     std::vector<std::string> names;
     FunctionInfo function_info;
 
@@ -217,6 +225,9 @@ protected:
     }
 
     virtual void write_function_extra_info(std::string info) = 0;
+
+    virtual void write_function_exit(FunctionInfo &function_info)
+    {}
 };
 
 }

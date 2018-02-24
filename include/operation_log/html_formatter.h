@@ -28,9 +28,51 @@ public:
     {
         write_footer();
     }
+
+    void exit_function()
+    {
+        output.get() << "</div>" << std::endl;
+        this->FormatterBase::exit_function();
+    }
+
 private:
     bool was_header_written;
     std::string log_name;
+    std::string style_code = R"code(
+  <style>
+    .operation-log {
+        color: #dcdcaa;
+        background-color: #1e1e1e;
+    }
+
+    .operation-log-function-frame > div {
+        padding-left: 1em;
+    }
+
+    .operation-log-function-frame div.operation-log-function {
+        padding-left: 0em;
+    }
+
+    .operation-log-function-return-type, .operation-log-function-arg-type {
+        color: #388cd6;
+    }
+
+    .operation-log-function-name {
+        color: #dcb856;
+    }
+
+    .operation-log-var-dump > div {
+        border-color: #dcb856;
+        border-width: 1px;
+        border-style: solid;
+        border-radius: 0.5em;
+        margin-left: -0.5em;
+        padding-left: 0.5em;
+        padding-right: 0.5em;
+        display: inline-block;
+    }
+  </style>
+)code";
 
     void write_escaped(std::string value)
     {
@@ -55,16 +97,20 @@ private:
         output.get() << R"code(
 <html>
 <head>
-    <title>Operation Log)code";
+  <title>Operation Log)code";
         if (!log_name.empty())
         {
             output.get() << " ";
             write_escaped(log_name);
         }
-        output.get() << R"code(</title>
+        output.get() << "</title>" << std::endl <<
+            style_code << R"code(
 </head>
 
 <body>
+
+<div class="operation-log">
+
 )code";
 
         was_header_written = true;
@@ -73,6 +119,8 @@ private:
     void write_footer()
     {
         output.get() << R"code(
+</div>
+
 </body>
 
 </html>
@@ -96,12 +144,18 @@ private:
 
     void write_dump_vars_prefix() override
     {
-        output.get() << "  <div class=\"operation-log-var-dump\">" << std::endl;
+        output.get() << R"code(
+  <div class="operation-log-var-dump">
+    <div>
+)code";
     }
 
     void write_dump_vars_suffix() override
     {
-        output.get() << "  </div>" << std::endl;
+        output.get() << R"code(
+    </div>
+  </div>
+)code";
     }
 
     void write_dump_vars_separator() override
@@ -177,12 +231,19 @@ private:
 
     void write_function_prefix() override
     {
-        output.get() << "  <div class=\"operation-log-function\">" << std::endl;
+        output.get() <<
+            "<div class=\"operation-log-function-frame\">" << std::endl <<
+            "  <div class=\"operation-log-function\">" << std::endl;
     }
 
     void write_function_suffix() override
     {
         output.get() << "  </div>" << std::endl;
+    }
+
+    void write_function_exit(FunctionInfo &function_info) override
+    {
+        output.get() << "</div>" << std::endl;
     }
 
     void write_function_return_type_and_name(
@@ -217,7 +278,7 @@ private:
     {
         output.get() << "<span class=\"operation-log-function-arg-type\">";
         write_escaped(type_name);
-        output.get() << "</span> <span class=\"operation-log-funciton-arg-name\">";
+        output.get() << "</span> <span class=\"operation-log-function-arg-name\">";
         write_escaped(parameter_name);
         output.get() << "</span> = <span class=\"operation-log-function-arg-value\">";
         write_escaped(value_stringified);
