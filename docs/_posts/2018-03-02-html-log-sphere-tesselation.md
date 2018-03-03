@@ -21,7 +21,7 @@ The output log for dividing each great circle in 3 parts is[here](../examples/ht
 
 ### Log Configuration and Logging Functions
 
-```C++
+{% highlight c++ %}
 #include <fstream>
 #include <stack>
 
@@ -221,12 +221,12 @@ void log_sphere_tessalation_builder_vertices(
 }
 
 }
-```
+{% endhighlight %}
 
 
 ### The Tesselation Builder Class
 
-```C++
+{% highlight c++ %}
 #include <operation_log.h>
 
 
@@ -615,4 +615,4 @@ private:
 };
 
 }
-```
+{% endhighlight %}
