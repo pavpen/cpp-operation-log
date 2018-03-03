@@ -167,6 +167,13 @@ private:
 )code";
     }
 
+    void write_html_value(std::string code) override
+    {
+        output.get() << "  <div class=\"operation-log-html-message\">" <<
+            code <<
+            "</div>" << std::endl;
+    }
+
     void write_dump_vars_suffix() override
     {
         output.get() << R"code(

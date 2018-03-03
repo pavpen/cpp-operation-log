@@ -100,6 +100,7 @@ class SceneView
         this.labels = [];
         this.labelClassName = 'operation-log-3js-scene-view-label';
         this.controls = null; // E.g., mouse controls for rotating the view camera.
+        this.controlsUpdating = false;
         this.animationFrame = null; // Call back for each scene frame.
         this.containerElement = null; // Set when the view is added to the DOM.
         this.containerElementClassName = 'operation-log-3js-scene-container';
@@ -161,17 +162,20 @@ class SceneView
 
     render()
     {
-        if (this.controls)
+        if (this.controls && !this.controlsUpdating)
         {
+            this.controlsUpdating = true;
             this.controls.update();
+            this.controlsUpdating = false;
         }
+        this.renderer.render(this.scene, this.camera);
         if (this.labels)
         {
-            for (var label_i = 0; label_i < this.labels; ++label_i)
+            for (var label_i = 0; label_i < this.labels.length; ++label_i)
             {
                 var label = this.labels[label_i];
 
-                label.updatePosition(this.sceneView.camera, this.renderer);
+                label.updatePosition(this.camera, this.renderer);
             }
         }
     }

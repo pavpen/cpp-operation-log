@@ -35,6 +35,12 @@ public:
         write_message_value(message);
     }
 
+    void write_html(std::string code)
+    {
+        write_message_prefix();
+        write_html_value(code);
+    }
+
     template <typename... VarTs>
     void dump_vars(const std::vector<std::string> &names, VarTs... vars)
     {
@@ -101,6 +107,9 @@ protected:
     {}
 
     virtual void write_message_value(std::string message) = 0;
+
+    virtual void write_html_value(std::string code)
+    {}
 
     virtual void write_dump_vars_prefix()
     {}

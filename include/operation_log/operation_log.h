@@ -67,6 +67,14 @@ public:
         }
     }
 
+    void write_html(std::string code)
+    {
+        if (message_filter_predicate.get()(call_stack))
+        {
+            formatter->write_html(code);
+        }
+    }
+
     template <typename... VarTs>
     void dump_vars(const std::vector<std::string> &names, VarTs... vars)
     {
