@@ -10,6 +10,7 @@
 #include "formatter_base.h"
 #include "function_info.h"
 
+
 namespace operation_log
 {
 
@@ -44,6 +45,10 @@ public:
     {
         style_code = html_code;
     }
+
+public:
+    std::string extra_header_code = "";
+    static const std::string three_js_header_code;
 
 private:
     bool was_header_written;
@@ -114,7 +119,9 @@ private:
             write_escaped(log_name);
         }
         output.get() << "</title>" << std::endl <<
-            style_code << R"code(
+            style_code <<
+            extra_header_code <<
+            R"code(
 </head>
 
 <body>
@@ -371,6 +378,11 @@ private:
         output.get() << "</span>";
     }
 };
+
+const std::string HtmlFormatter::three_js_header_code =
+#include "html_formatter/three_js.h"
+;
+
 
 }
 
