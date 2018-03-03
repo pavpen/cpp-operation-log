@@ -3,8 +3,8 @@
 A small C++ library for logging debug messages, such as function entry and
 exit, dumping variables, and creating `std::ostream` messages.
 
-It has a basic plain-text formatter, and HTML formatter which can be used to
-log raw HTML messages (e.g., you can send 3D scenes to you log).  Other
+It has a basic plain-text formatter, and an HTML formatter which can be used
+to log raw HTML messages (e.g., you can send 3D scenes to you log).  Other
 formatters can be added.
 
 

@@ -1,3 +1,10 @@
+---
+layout: post
+title:  "An Example HTML Log"
+date:   2018-03-02 1:17:00
+categories: examples html-log
+---
+
 ## An Example Use of the HTML Formatter
 
 This is a rather long example which logs the steps of a simplistic sphere
@@ -7,8 +14,9 @@ tesselation algorithm.  Each time a new vertex is added to the tesselation a
 
 ### The Log
 
-The output log for dividing each great circle in 3 parts is
-[here](http://htmlpreview.github.com/?https://github.com/pavpen/cpp-operation-log/blob/master/doc/examples/html-log-sphere-tesselation/operation-log.html).
+The output log for dividing each great circle in 3 parts is[here](../examples/html-log-sphere-tesselation/operation-log.html).
+
+<iframe src="../examples/html-log-sphere-tesselation/operation-log.html"></iframe>
 
 
 ### Log Configuration and Logging Functions
