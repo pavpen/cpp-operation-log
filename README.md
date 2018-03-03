@@ -3,12 +3,16 @@
 A small C++ library for logging debug messages, such as function entry and
 exit, dumping variables, and creating `std::ostream` messages.
 
-It has a basic plain-text formatter.  Others can be added.
+It has a basic plain-text formatter, and HTML formatter which can be used to
+log raw HTML messages (e.g., you can send 3D scenes to you log).  Other
+formatters can be added.
+
 
 ## Requirements
 
 * C++11 or later.
 * Tested only with GCC.
+
 
 ## Installation
 
@@ -19,7 +23,18 @@ It has a basic plain-text formatter.  Others can be added.
 sudo dpkg -i build/liboperationlog_0.1.0.deb
 ```
 
+
+## Compile Logging Out
+
+To disable logging at compile time, define the `OPERATION_LOG_DISABLE` macro.
+
+
 ## Example
+
+### HTML Example
+
+Browse one [here](doc/examples/html-log-sphere-tesselation/example-code.md).
+
 
 ### Source Sample
 
@@ -174,7 +189,3 @@ void operation_log_init(operation_log::DefaultOperationLog &log)
 
 #include <operation_log.h>
 ```
-
-### Compile Logging Out
-
-To disable logging at compile time, define the `OPERATION_LOG_DISABLE` macro.
