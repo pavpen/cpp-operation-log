@@ -1,0 +1,17 @@
+---
+# The main Sass file needs front matter (the dashes are enough)
+---
+@charset "utf-8";
+
+// Override some theme defaults, because we want more page width to see code.
+div#banner {
+    margin-right: -535px;
+}
+
+.wrapper > nav {
+    margin-left: -700px;
+}
+
+.wrapper > section {
+    width: 800px;
+}

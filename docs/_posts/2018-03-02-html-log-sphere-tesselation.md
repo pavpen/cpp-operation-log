@@ -14,7 +14,8 @@ tesselation algorithm.  Each time a new vertex is added to the tesselation a
 
 ### The Log
 
-The output log for dividing each great circle in 3 parts is[here](../examples/html-log-sphere-tesselation/operation-log.html).
+The output log for dividing each great circle in 3 parts is
+[here](../examples/html-log-sphere-tesselation/operation-log.html).
 
 <iframe width="800" height="500" src="../examples/html-log-sphere-tesselation/operation-log.html"></iframe>
 
