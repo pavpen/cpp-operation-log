@@ -7,9 +7,8 @@ tesselation algorithm.  Each time a new vertex is added to the tesselation a
 
 ### The Log
 
-The output log for dividing each great circle in 3 parts is [here](operation-log.html).
-
-<iframe src="operation-log.html"></iframe>
+The output log for dividing each great circle in 3 parts is
+[here](http://htmlpreview.github.com/?https://github.com/pavpen/cpp-operation-log/blob/master/doc/examples/html-log-sphere-tesselation/operation-log.html).
 
 
 ### Log Configuration and Logging Functions
