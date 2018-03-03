@@ -33,7 +33,8 @@ To disable logging at compile time, define the `OPERATION_LOG_DISABLE` macro.
 
 ### HTML Example
 
-Browse one [here](doc/examples/html-log-sphere-tesselation/example-code.md).
+Browse one
+[here](https://pavpen.github.io/cpp-operation-log/2018/html-log-sphere-tesselation.html).
 
 
 ### Source Sample
