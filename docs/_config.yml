@@ -3,10 +3,6 @@ theme: jekyll-theme-leap-day
 description: >
   A small C++ library for logging debug messages (like function entry and
   exit, dumping variables, or 3D visualizations of models).
-
-  It has a basic plain-text formatter, and an HTML formatter which can be used
-  to log raw HTML messages (e.g., you can send 3D scenes to you log).  Other
-  formatters can be added.
 baseurl: /cpp-operation-log
 url: https://pavpen.github.io/cpp-operation-log/
 github_username: pavpen
