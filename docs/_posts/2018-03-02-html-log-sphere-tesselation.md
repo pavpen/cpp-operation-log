@@ -251,6 +251,8 @@ private:
     double longitude_step;
     double prev_longitude;
     double prev_longitude_step;
+    double parallel_r; // Radius of the current parallel circle.
+    int half_meridian_subdivision_c;
     int parallel_subdivision_c;
     int prev_parallel_subdivision_c;
     int parallel_vertex_i;
@@ -281,53 +283,76 @@ public:
 
     void run()
     {
-        int vertex_count = 0;
-        int face_count = 0;
+        // First parallel (pole):
+        int vertex_count = 1;
+        // We over-count the faces by 2, since we count previous parallel
+        // vertex count + current parallel vertex count number of faces for
+        // each parallel.  However, the poles have one vertex, but need 0
+        // triangles to complete the path on the pole parallel (i.e., the
+        // 0-radius circle from the pole to itself).
+        int face_count = -2;
         int prev_vertex_c = 1;
-        double latitude_step = M_PI / linear_subdivisions;
 
-        for (double latitude = -CGAL_M_PI_2 + latitude_step;
-            latitude <= CGAL_M_PI_2;
-            latitude += latitude_step)
+        // Subdivide a half meridian in, at least, 3 parts:
+        half_meridian_subdivision_c =
+            std::max(3, (linear_subdivisions + 1) / 2);
+
+        latitude_step = M_PI / half_meridian_subdivision_c;
+        double latitude = -CGAL_M_PI_2 + latitude_step;
+
+        for (int parallel_c = 2;
+            parallel_c <= half_meridian_subdivision_c;
+            ++parallel_c, latitude += latitude_step)
         {
-            // We're using a normalized radius of 1:
-            double longitude_circle_r = cos(latitude);
-            double longitude_subdivision_c =
-                ceil(longitude_circle_r * linear_subdivisions);
-            int vertex_c = longitude_subdivision_c;
+            // Subdivide each parallel into, at least, 3 parts:
+            parallel_subdivision_c = std::max(
+                3,
+                static_cast<int>(ceil(cos(latitude) * linear_subdivisions)));
+            int vertex_c = parallel_subdivision_c;
 
-            vertex_count += longitude_subdivision_c;
+            vertex_count += vertex_c;
             face_count += prev_vertex_c + vertex_c;
 
             prev_vertex_c = vertex_c;
         }
 
+        // Last parallel (pole):
+        face_count += prev_vertex_c;
+        ++vertex_count;
+
         // Each face has 3 halfedges.
         int halfedge_count = 3 * face_count;
 
         builder.begin_surface(vertex_count, face_count, halfedge_count);
-        add_spherical_tessalation(builder);
+        add_tessalation();
         builder.end_surface();
     }
 
 private:
-    void add_spherical_tessalation(CGAL::Polyhedron_incremental_builder_3<HDS> &builder)
+    void add_tessalation()
     {
-        latitude_step = M_PI / linear_subdivisions;
+        OPERATION_LOG_ENTER_NO_ARG_FUNCTION();
 
-        // Add the first longitude circle (radius = 0):
-        add_vertex(-CGAL_M_PI_2, 0);
-        parallel_subdivision_c = 1;
-        prev_parallel_vertex_i = 0;
-        parallel_last_vertex_i = 0;
         longitude_step = 2 * M_PI / parallel_subdivision_c;
 
-        parallel_vertex_i = 1;
+        latitude = -CGAL_M_PI_2;
+        parallel_r = 0.0;
+        prev_parallel_vertex_i = 0;
+        add_first_parallel();
 
-        for (latitude = -CGAL_M_PI_2 + latitude_step;
-            latitude < CGAL_M_PI_2;
-            latitude += latitude_step)
+        latitude += latitude_step;
+        parallel_r = circumsphere_r * cos(latitude);
+        prev_parallel_subdivision_c = parallel_subdivision_c;
+        prev_parallel_last_vertex_i = parallel_last_vertex_i;
+        add_second_parallel();
+
+        // Add the remaining parallel circles, except the last pole:
+        latitude += latitude_step;
+        for (int parallel_c = 3;
+            parallel_c <= half_meridian_subdivision_c;
+            ++parallel_c, latitude += latitude_step)
         {
+            parallel_r = circumsphere_r * cos(latitude);
             prev_longitude = 0;
             prev_parallel_subdivision_c = parallel_subdivision_c;
             prev_longitude_step = longitude_step;
@@ -335,16 +360,105 @@ private:
 
             add_parallel();
         }
+
+        parallel_r = 0.0;
+        prev_longitude = 0;
+        prev_parallel_subdivision_c = parallel_subdivision_c;
+        prev_longitude_step = longitude_step;
+        prev_parallel_last_vertex_i = parallel_last_vertex_i;
+        add_last_parallel();
+
+        OPERATION_LOG_LEAVE_FUNCTION();
+    }
+
+    // Adds the first parallel (radius = 0):
+    inline void add_first_parallel()
+    {
+        OPERATION_LOG_ENTER_NO_ARG_FUNCTION();
+
+        add_vertex(-CGAL_M_PI_2, 0);
+        parallel_subdivision_c = 1;
+        parallel_last_vertex_i = 0;
+        parallel_vertex_i = 1;
+
+        OPERATION_LOG_LEAVE_FUNCTION();
+    }
+
+    // Adds the second parallel:
+    inline void add_second_parallel()
+    {
+        OPERATION_LOG_ENTER_NO_ARG_FUNCTION();
+
+        // Subdivide each parallel into, at least, 3 parts:
+        parallel_subdivision_c = std::max(
+            3, static_cast<int>(ceil(cos(latitude) * linear_subdivisions)));
+        longitude_step = 2*M_PI / parallel_subdivision_c;
+        parallel_last_vertex_i = parallel_vertex_i + parallel_subdivision_c - 1;
+
+        // Add the first vertex for the current parallel:
+        add_vertex(latitude, 0);
+        ++parallel_vertex_i;
+
+        for (longitude = longitude_step;
+            parallel_vertex_i <= parallel_last_vertex_i;
+            ++parallel_vertex_i, longitude += longitude_step)
+        {
+            add_vertex(latitude, longitude);
+
+            add_face(
+                prev_parallel_vertex_i,
+                parallel_vertex_i - 1,
+                parallel_vertex_i);
+        }
+
+        // Add the last face:
+        add_face(
+            prev_parallel_vertex_i,
+            parallel_vertex_i - 1,
+            parallel_vertex_i - parallel_subdivision_c);
+
+        ++prev_parallel_vertex_i;
+
+        OPERATION_LOG_LEAVE_FUNCTION();
+    }
+
+    inline void add_last_parallel()
+    {
+        OPERATION_LOG_ENTER_NO_ARG_FUNCTION();
+
+        parallel_subdivision_c = 1;
+        parallel_last_vertex_i = parallel_vertex_i + parallel_subdivision_c - 1;
+
+        // Add the pole:
+        add_vertex(CGAL_M_PI_2, 0);
+
+        // Add the faces:
+        for (++prev_parallel_vertex_i;
+            prev_parallel_vertex_i <= prev_parallel_last_vertex_i;
+            ++prev_parallel_vertex_i)
+        {
+            add_face(
+                prev_parallel_vertex_i - 1,
+                parallel_vertex_i,
+                prev_parallel_vertex_i);
+        }
+
+        // Add the last face:
+        add_face(
+            prev_parallel_vertex_i - 1,
+            parallel_vertex_i,
+            prev_parallel_vertex_i - prev_parallel_subdivision_c);
+
+        OPERATION_LOG_LEAVE_FUNCTION();
     }
 
     inline void add_parallel()
     {
-        OPERATION_LOG_ENTER_NO_ARG_FUNCTION(oplog_func);
+        OPERATION_LOG_ENTER_NO_ARG_FUNCTION();
 
-        // We're using a normalized radius of 1:
-        double parallel_r = cos(latitude);
-        parallel_subdivision_c =
-            ceil(parallel_r * linear_subdivisions);
+        // Subdivide each parallel into, at least, 3 parts:
+        parallel_subdivision_c = std::max(
+            3, static_cast<int>(ceil(cos(latitude) * linear_subdivisions)));
         longitude_step = 2*M_PI / parallel_subdivision_c;
         parallel_last_vertex_i = parallel_vertex_i + parallel_subdivision_c - 1;
 
@@ -385,14 +499,14 @@ private:
             }
         }
 
-        OPERATION_LOG_LEAVE_FUNCTION(oplog_func);
+        OPERATION_LOG_LEAVE_FUNCTION();
     }
 
     // Add a face that connects the current and next vertices on the
     // previous parallel to the current vertex on the current parallel.
     inline void advance_prev_parallel_vertex()
     {
-        OPERATION_LOG_ENTER_NO_ARG_FUNCTION(oplog_func);
+        OPERATION_LOG_ENTER_NO_ARG_FUNCTION();
 
         int res_next_vertex_i = prev_parallel_vertex_i + 1;
         int next_vertex_i = res_next_vertex_i;
@@ -402,35 +516,21 @@ private:
             next_vertex_i -= prev_parallel_subdivision_c;
         }
 
-        if (next_vertex_i != prev_parallel_vertex_i)
-        {
-            OPERATION_LOG_MESSAGE_STREAM(<<
-                "Face vertices: " << prev_parallel_vertex_i <<
-                ", " << parallel_vertex_i << ", " << next_vertex_i)
-
-            builder.begin_facet();
-            builder.add_vertex_to_facet(prev_parallel_vertex_i);
-            builder.add_vertex_to_facet(parallel_vertex_i);
-            builder.add_vertex_to_facet(next_vertex_i);
-            builder.end_facet();
-        }
-        else
-        {
-            OPERATION_LOG_MESSAGE("Previous parallel has < 2 subdivisions. It's already complete.");
-        }
+        assert(next_vertex_i != prev_parallel_vertex_i);
+        add_face(prev_parallel_vertex_i, parallel_vertex_i, next_vertex_i);
 
         prev_parallel_vertex_i = res_next_vertex_i;
         longitude_difference_subdiv += parallel_subdivision_c;
 
         OPERATION_LOG_DUMP_VARS(prev_parallel_vertex_i, longitude_difference_subdiv);
-        OPERATION_LOG_LEAVE_FUNCTION(oplog_func);
+        OPERATION_LOG_LEAVE_FUNCTION();
     }
 
     // Add a face that connects the current and next vertices on the
     // current parallel to the current vertex on the previous parallel.
     inline void advance_parallel_vertex()
     {
-        OPERATION_LOG_ENTER_NO_ARG_FUNCTION(oplog_func);
+        OPERATION_LOG_ENTER_NO_ARG_FUNCTION();
 
         int res_next_vertex_i = parallel_vertex_i + 1;
         int next_vertex_i = res_next_vertex_i;
@@ -447,48 +547,23 @@ private:
             longitude += longitude_step;
         }
 
-        if (next_vertex_i != parallel_vertex_i)
-        {
-            OPERATION_LOG_MESSAGE_STREAM(<<
-                "Face vertices: " << prev_parallel_vertex_i <<
-                ", " << parallel_vertex_i << ", " << next_vertex_i);
-
-            builder.begin_facet();
-            builder.add_vertex_to_facet(prev_parallel_vertex_i);
-            builder.add_vertex_to_facet(parallel_vertex_i);
-            builder.add_vertex_to_facet(next_vertex_i);
-            builder.end_facet();
-        }
-        else
-        {
-            OPERATION_LOG_MESSAGE("Current parallel has < 2 subdivisions. It's already complete.");
-        }
+        assert(next_vertex_i != parallel_vertex_i);
+        add_face(prev_parallel_vertex_i, parallel_vertex_i, next_vertex_i);
 
         parallel_vertex_i = res_next_vertex_i;
         longitude_difference_subdiv -= prev_parallel_subdivision_c;
 
         OPERATION_LOG_DUMP_VARS(parallel_vertex_i, longitude_difference_subdiv);
-        OPERATION_LOG_LEAVE_FUNCTION(oplog_func);
+        OPERATION_LOG_LEAVE_FUNCTION();
     }
 
     // Connect all remaining vertices on the previous parallel to the current
     // vertex on the current parallel by forming traiangles.
     inline void complete_prev_parallel()
     {
-        OPERATION_LOG_ENTER_NO_ARG_FUNCTION(oplog_func);
+        OPERATION_LOG_ENTER_NO_ARG_FUNCTION();
 
-        if (prev_parallel_subdivision_c < 2)
-        {
-            OPERATION_LOG_MESSAGE("Previous parallel has < 2 subdivisions. It's already complete.");
-
-            if (prev_parallel_vertex_i <= prev_parallel_last_vertex_i)
-            {
-                ++prev_parallel_vertex_i;
-            }
-
-            OPERATION_LOG_LEAVE_FUNCTION(oplog_func);
-            return;
-        }
+        assert(prev_parallel_subdivision_c > 2);
 
         int prev_vertex_i = prev_parallel_vertex_i;
         int parallel_vertex_i = this->parallel_vertex_i;
@@ -510,41 +585,23 @@ private:
                 next_vertex_i -= prev_parallel_subdivision_c;
             }
 
-            OPERATION_LOG_DUMP_VARS(prev_vertex_i, parallel_vertex_i, prev_parallel_vertex_i)
-            OPERATION_LOG_MESSAGE_STREAM(<<
-                "Face vertices: " << prev_vertex_i <<
-                ", " << parallel_vertex_i << ", " << next_vertex_i);
+            OPERATION_LOG_DUMP_VARS(prev_vertex_i, parallel_vertex_i, prev_parallel_vertex_i);
 
-            builder.begin_facet();
-            builder.add_vertex_to_facet(prev_vertex_i);
-            builder.add_vertex_to_facet(parallel_vertex_i);
-            builder.add_vertex_to_facet(next_vertex_i);
-            builder.end_facet();
+            add_face(prev_vertex_i, parallel_vertex_i, next_vertex_i);
 
             prev_vertex_i = prev_parallel_vertex_i;
         }
 
-        OPERATION_LOG_LEAVE_FUNCTION(oplog_func);
+        OPERATION_LOG_LEAVE_FUNCTION();
     }
 
     // Connect all remaining vertices on the current parallel to the current
     // vertex on the previous parallel by forming traiangles.
     inline void complete_parallel()
     {
-        OPERATION_LOG_ENTER_NO_ARG_FUNCTION(oplog_func);
+        OPERATION_LOG_ENTER_NO_ARG_FUNCTION();
 
-        if (parallel_subdivision_c < 2)
-        {
-            OPERATION_LOG_MESSAGE("Current parallel has < 2 subdivisions. It's already complete.");
-
-            if (parallel_vertex_i <= parallel_last_vertex_i)
-            {
-                ++parallel_vertex_i;
-            }
-
-            OPERATION_LOG_LEAVE_FUNCTION(oplog_func);
-            return;
-        }
+        assert(parallel_subdivision_c > 2);
 
         int prev_vertex_i = parallel_vertex_i;
         int prev_parallel_vertex_i = this->prev_parallel_vertex_i;
@@ -575,43 +632,51 @@ private:
                 longitude += longitude_step;
             }
 
-            OPERATION_LOG_MESSAGE_STREAM(<<
-                "Face vertices: " << prev_vertex_i <<
-                ", " << next_vertex_i << ", " << prev_parallel_vertex_i);
-
-            builder.begin_facet();
-            builder.add_vertex_to_facet(prev_vertex_i);
-            builder.add_vertex_to_facet(next_vertex_i);
-            builder.add_vertex_to_facet(prev_parallel_vertex_i);
-            builder.end_facet();
+            add_face(prev_vertex_i, next_vertex_i, prev_parallel_vertex_i);
 
             prev_vertex_i = parallel_vertex_i;
         }
 
-        OPERATION_LOG_LEAVE_FUNCTION(oplog_func);
+        OPERATION_LOG_LEAVE_FUNCTION();
+    }
+
+    // Adds a triangusar face to the polyhedron.
+    //     The vertices must have already been added.
+    inline void add_face(int v0_index, int v1_index, int v2_index)
+    {
+        OPERATION_LOG_ENTER_FUNCTION(v0_index, v1_index, v2_index);
+
+        builder.begin_facet();
+        builder.add_vertex_to_facet(v0_index);
+        builder.add_vertex_to_facet(v1_index);
+        builder.add_vertex_to_facet(v2_index);
+        builder.end_facet();
+
+        OPERATION_LOG_LEAVE_FUNCTION();
     }
 
     inline void add_vertex(double latitude, double longitude)
     {
-        OPERATION_LOG_ENTER_FUNCTION(oplog_func, latitude / M_PI, longitude / M_PI);
+        OPERATION_LOG_ENTER_FUNCTION(latitude / M_PI, longitude / M_PI);
 
-        double longitude_circle_r = circumsphere_r * cos(latitude);
+        assert(abs(parallel_r - circumsphere_r * cos(latitude)) < 1e-15);
+
         Kernel::Point_3 point(
-                longitude_circle_r * cos(longitude),
-                longitude_circle_r * sin(longitude),
+                parallel_r * cos(longitude),
+                parallel_r * sin(longitude),
                 circumsphere_r * sin(latitude)
             );
-        
+
         OPERATION_LOG_MESSAGE_STREAM(<<
             "Vertex " << vertex_count << ": " << point);
 
         builder.add_vertex(point);
         vertex_count++;
 
-        output_sphere_log::log_sphere_tessalation_builder_vertices(
+        cpp_cad_log::log_sphere_tessalation_builder_vertices(
             circumsphere_r, latitude_step, latitude, builder, vertex_count);
 
-        OPERATION_LOG_LEAVE_FUNCTION(oplog_func);
+        OPERATION_LOG_LEAVE_FUNCTION();
     }
 };
 
