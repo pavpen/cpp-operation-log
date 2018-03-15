@@ -2,6 +2,7 @@
 
 #ifdef OPERATION_LOG_ENABLE
 
+#undef OPERATION_LOG
 #undef OPERATION_LOG_ENTER_NO_ARG_FUNCTION
 #undef OPERATION_LOG_ENTER_FUNCTION
 #undef OPERATION_LOG_LEAVE_FUNCTION
@@ -9,6 +10,9 @@
 #undef OPERATION_LOG_MESSAGE
 #undef OPERATION_LOG_MESSAGE_STREAM
 
+
+// Operation logging is enabled for the current code section:
+#define OPERATION_LOG
 
 #define OPERATION_LOG_ENTER_NO_ARG_FUNCTION() \
         operation_log::FunctionEntry OPERATION_LOG_FUNCTION_VAR_NAME(__PRETTY_FUNCTION__);

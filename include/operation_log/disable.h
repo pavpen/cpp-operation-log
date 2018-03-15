@@ -1,5 +1,7 @@
 // Include this file to disable operation logging in code that follows.
 
+// Operation logging is disabled for the current code section:
+#undef OPERATION_LOG
 #undef OPERATION_LOG_ENTER_NO_ARG_FUNCTION
 #undef OPERATION_LOG_ENTER_FUNCTION
 #undef OPERATION_LOG_LEAVE_FUNCTION
