@@ -19,9 +19,9 @@
 
 // Should we enable operation logging:
 #ifndef OPERATION_LOG_ENABLE
-#    ifndef DEBUG
+#    ifndef NDEBUG
 #        define OPERATION_LOG_ENABLE
-#    endif // DEBUG
+#    endif // NDEBUG
 #endif // OPERATION_LOG_ENABLE
 
 #ifdef OPERATION_LOG_DISABLE
