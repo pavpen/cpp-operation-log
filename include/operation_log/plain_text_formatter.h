@@ -8,6 +8,8 @@
 
 #include "formatter_base.h"
 #include "function_info.h"
+#include "value_formatter_i.h"
+
 
 namespace operation_log
 {
@@ -45,59 +47,9 @@ protected:
         output.get() << "," << std::endl;
     }
 
-    void write_dump_var(std::string name, bool value)
+    void write_dump_var(std::string name, ValueFormatterI &value_formatter)
     {
-        output.get() << name << " = " << value;
-    }
-
-    void write_dump_var(std::string name, short value)
-    {
-        output.get() << name << " = " << value;
-    }
-
-    void write_dump_var(std::string name, unsigned short value)
-    {
-        output.get() << name << " = " << value;
-    }
-
-    void write_dump_var(std::string name, int value)
-    {
-        output.get() << name << " = " << value;
-    }
-
-    void write_dump_var(std::string name, unsigned int value)
-    {
-        output.get() << name << " = " << value;
-    }
-
-    void write_dump_var(std::string name, long value)
-    {
-        output.get() << name << " = " << value;
-    }
-
-    void write_dump_var(std::string name, unsigned long value)
-    {
-        output.get() << name << " = " << value;
-    }
-
-    void write_dump_var(std::string name, float value)
-    {
-        output.get() << name << " = " << value;
-    }
-
-    void write_dump_var(std::string name, double value)
-    {
-        output.get() << name << " = " << value;
-    }
-
-    void write_dump_var(std::string name, long double value)
-    {
-        output.get() << name << " = " << value;
-    }
-
-    void write_dump_var(std::string name, void* value)
-    {
-        output.get() << name << " = " << value;
+        output.get() << name << " = " << value_formatter.to_text();
     }
 
     virtual void write_function_suffix()
@@ -127,69 +79,10 @@ protected:
     }
 
     void write_function_arg(
-        std::string type_name, std::string parameter_name, bool value)
+        std::string type_name, std::string parameter_name,
+        ValueFormatterI &value_formatter)
     {
-        output.get() << type_name << " " << parameter_name << " = " << value;
-    }
-
-    void write_function_arg(
-        std::string type_name, std::string parameter_name, short value)
-    {
-        output.get() << type_name << " " << parameter_name << " = " << value;
-    }
-
-    void write_function_arg(
-        std::string type_name, std::string parameter_name, unsigned short value)
-    {
-        output.get() << type_name << " " << parameter_name << " = " << value;
-    }
-
-    void write_function_arg(
-        std::string type_name, std::string parameter_name, int value)
-    {
-        output.get() << type_name << " " << parameter_name << " = " << value;
-    }
-
-    void write_function_arg(
-        std::string type_name, std::string parameter_name, unsigned int value)
-    {
-        output.get() << type_name << " " << parameter_name << " = " << value;
-    }
-
-    void write_function_arg(
-        std::string type_name, std::string parameter_name, long value)
-    {
-        output.get() << type_name << " " << parameter_name << " = " << value;
-    }
-
-    void write_function_arg(
-        std::string type_name, std::string parameter_name, unsigned long value)
-    {
-        output.get() << type_name << " " << parameter_name << " = " << value;
-    }
-
-    void write_function_arg(
-        std::string type_name, std::string parameter_name, float value)
-    {
-        output.get() << type_name << " " << parameter_name << " = " << value;
-    }
-
-    void write_function_arg(
-        std::string type_name, std::string parameter_name, double value)
-    {
-        output.get() << type_name << " " << parameter_name << " = " << value;
-    }
-
-    void write_function_arg(
-        std::string type_name, std::string parameter_name, long double value)
-    {
-        output.get() << type_name << " " << parameter_name << " = " << value;
-    }
-
-    void write_function_arg(
-        std::string type_name, std::string parameter_name, void* value)
-    {
-        output.get() << type_name << " " << parameter_name << " = " << value;
+        output.get() << type_name << " " << parameter_name << " = " << value_formatter.to_text();
     }
 
     void write_function_extra_info(std::string info) override

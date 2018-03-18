@@ -8,27 +8,6 @@ to log raw HTML messages (e.g., you can send 3D scenes to you log).  Other
 formatters can be added.
 
 
-## Requirements
-
-* C++11 or later.
-* Tested only with GCC.
-
-
-## Installation
-
-### Ubuntu 16
-
-```BASH
-./build_packages.sh
-sudo dpkg -i build/liboperationlog_0.1.0.deb
-```
-
-
-## Compile Logging Out
-
-To disable logging at compile time, define the `OPERATION_LOG_DISABLE` macro.
-
-
 ## Example
 
 ### HTML Example
@@ -160,6 +139,16 @@ void operation_log_init(operation_log::DefaultOperationLog &log)
     static MessageFilter message_filter;
 
     log.set_message_filter_predicate(message_filter);
+
+    // Output an HTML log:
+    static std::ofstream output_stream("operation-log.html");
+    static operation_log::HtmlFormatter formatter(output_stream, "MyApp's Operation Log");
+
+    // Enable Three.js in the HTML log:
+    formatter.extra_header_code =
+        operation_log::HtmlFormatter::three_js_header_code;
+
+    log.set_formatter(formatter);
 }
 
 }
@@ -190,3 +179,97 @@ void operation_log_init(operation_log::DefaultOperationLog &log)
 
 #include <operation_log.h>
 ```
+
+
+## Write Value Formatters for Custom Data Types
+
+If you want to dump variables with custom data types to the operation log,
+their values need to be convertable to strings.  The precedence for converting
+a `custom_value` to strings is the following.  (`decltype(custom_value)` means
+the data type of the `custom_value` variable.)
+
+1. `ValueFormatter<decltype(custom_value)>`.
+1. `std::to_string(custom_value)`.
+1. `std::cout << custom_value`.
+
+To define a value formatter for a custom data type, or to override a default
+formatter, implement a class specialization like the following.
+
+```C++
+namespace operation_log
+{
+
+// A value formatter for the `cpp_cad::Polygon_2` data type.
+template <>
+class ValueFormatter<cpp_cad::Polygon_2> : public ValueFormatterI
+{
+    private:
+
+    const cpp_cad::Polygon_2 value;
+
+    public:
+
+    // Receives the value to format.
+    ValueFormatter(const cpp_cad::Polygon_2 value)
+    : value(value)
+    {}
+
+    // Formats values for plain text logs.
+    std::string to_text() override
+    {
+        std::stringstream res;
+
+        res << "Polygon_2 { ";
+        typename cpp_cad::Polygon_2::Vertex_const_iterator vit;
+        bool is_first = true;
+
+        for (vit = value.vertices_begin(); vit != value.vertices_end(); ++vit)
+        {
+            if (is_first)
+            {
+                is_first = false;
+            }
+            else
+            {
+                res << ", ";
+            }
+            res << (*vit);
+        }
+        res << " }";
+
+        return res.str();
+    }
+
+    // Formats values for HTML logs.
+    std::string to_html() override
+    {
+        // We can output a Three.js scene, or an SVG element here.
+        return HtmlUtils::escape(to_text());
+    }
+};
+
+}
+```
+
+
+## Requirements
+
+* C++11 or later.
+* Tested only with GCC.
+
+
+## Installation
+
+### Ubuntu 16
+
+```BASH
+./build_packages.sh
+sudo dpkg -i build/liboperationlog_0.1.0.deb
+```
+
+
+## Compile Logging In, or Out
+
+To enable logging at compile time, define the `OPERATION_LOG_ENABLE` macro, or
+just undefine the `NDEBUG` macro.  To disable logging at compile time, whether
+`NDEBUG` is defined, or not, define the `OPERATION_LOG_DISABLE` macro.

@@ -9,6 +9,8 @@
 
 #include "formatter_base.h"
 #include "function_info.h"
+#include "html_utils.h"
+#include "value_formatter_i.h"
 
 
 namespace operation_log
@@ -91,20 +93,7 @@ private:
 
     void write_escaped(std::string value)
     {
-        std::ostream &out = output.get();
-
-        for (char ch : value)
-        {
-            switch (ch)
-            {
-                case '&':  out << "&amp;";       break;
-                case '\"': out << "&quot;";      break;
-                case '\'': out << "&apos;";      break;
-                case '<':  out << "&lt;";        break;
-                case '>':  out << "&gt;";        break;
-                default:   out << ch;            break;
-            }
-        }
+        HtmlUtils::write_escaped(output.get(), value);
     }
 
     void write_header()
@@ -185,72 +174,19 @@ private:
     void write_dump_vars_separator() override
     {}
 
-    void write_dump_var_lm(std::string name, std::string value_stringified)
+    void write_dump_var_lm(std::string name, std::string value_formatted)
     {
         output.get() <<
             "    <div class=\"operation-log-var\"><span class=\"operation-log-var-name\">";
         write_escaped(name);
-        output.get() << "</span> = <span class=\"operation-log-var-value\">";
-        write_escaped(value_stringified);
+        output.get() << "</span> = <span class=\"operation-log-var-value\">" <<
+            value_formatted;
         output.get() << "</span></div>" << std::endl;
     }
 
-    void write_dump_var(std::string name, bool value)
+    void write_dump_var(std::string name, ValueFormatterI &value_formatter)
     {
-        write_dump_var_lm(name, std::to_string(value));
-    }
-
-    void write_dump_var(std::string name, short value)
-    {
-        write_dump_var_lm(name, std::to_string(value));
-    }
-
-    void write_dump_var(std::string name, unsigned short value)
-    {
-        write_dump_var_lm(name, std::to_string(value));
-    }
-
-    void write_dump_var(std::string name, int value)
-    {
-        write_dump_var_lm(name, std::to_string(value));
-    }
-
-    void write_dump_var(std::string name, unsigned int value)
-    {
-        write_dump_var_lm(name, std::to_string(value));
-    }
-
-    void write_dump_var(std::string name, long value)
-    {
-        write_dump_var_lm(name, std::to_string(value));
-    }
-
-    void write_dump_var(std::string name, unsigned long value)
-    {
-        write_dump_var_lm(name, std::to_string(value));
-    }
-
-    void write_dump_var(std::string name, float value)
-    {
-        write_dump_var_lm(name, std::to_string(value));
-    }
-
-    void write_dump_var(std::string name, double value)
-    {
-        write_dump_var_lm(name, std::to_string(value));
-    }
-
-    void write_dump_var(std::string name, long double value)
-    {
-        write_dump_var_lm(name, std::to_string(value));
-    }
-
-    void write_dump_var(std::string name, void* value)
-    {
-        std::stringstream fmtr;
-
-        fmtr << value;
-        write_dump_var_lm(name, fmtr.str());
+        write_dump_var_lm(name, value_formatter.to_html());
     }
 
     void write_function_prefix() override
@@ -298,84 +234,21 @@ private:
 
     void write_function_arg_lms(
         std::string type_name, std::string parameter_name,
-        std::string value_stringified)
+        std::string value_formatted)
     {
         output.get() << "<span class=\"operation-log-function-arg-type\">";
         write_escaped(type_name);
         output.get() << "</span> <span class=\"operation-log-function-arg-name\">";
         write_escaped(parameter_name);
-        output.get() << "</span> = <span class=\"operation-log-function-arg-value\">";
-        write_escaped(value_stringified);
+        output.get() << "</span> = <span class=\"operation-log-function-arg-value\">" <<
+            value_formatted;
         output.get() << "</span>";
     }
 
     void write_function_arg(
-        std::string type_name, std::string parameter_name, bool value)
+        std::string type_name, std::string parameter_name, ValueFormatterI &value_formatter)
     {
-        write_function_arg_lms(type_name, parameter_name, std::to_string(value));
-    }
-
-    void write_function_arg(
-        std::string type_name, std::string parameter_name, short value)
-    {
-        write_function_arg_lms(type_name, parameter_name, std::to_string(value));
-    }
-
-    void write_function_arg(
-        std::string type_name, std::string parameter_name, unsigned short value)
-    {
-        write_function_arg_lms(type_name, parameter_name, std::to_string(value));
-    }
-
-    void write_function_arg(
-        std::string type_name, std::string parameter_name, int value)
-    {
-        write_function_arg_lms(type_name, parameter_name, std::to_string(value));
-    }
-
-    void write_function_arg(
-        std::string type_name, std::string parameter_name, unsigned int value)
-    {
-        write_function_arg_lms(type_name, parameter_name, std::to_string(value));
-    }
-
-    void write_function_arg(
-        std::string type_name, std::string parameter_name, long value)
-    {
-        write_function_arg_lms(type_name, parameter_name, std::to_string(value));
-    }
-
-    void write_function_arg(
-        std::string type_name, std::string parameter_name, unsigned long value)
-    {
-        write_function_arg_lms(type_name, parameter_name, std::to_string(value));
-    }
-
-    void write_function_arg(
-        std::string type_name, std::string parameter_name, float value)
-    {
-        write_function_arg_lms(type_name, parameter_name, std::to_string(value));
-    }
-
-    void write_function_arg(
-        std::string type_name, std::string parameter_name, double value)
-    {
-        write_function_arg_lms(type_name, parameter_name, std::to_string(value));
-    }
-
-    void write_function_arg(
-        std::string type_name, std::string parameter_name, long double value)
-    {
-        write_function_arg_lms(type_name, parameter_name, std::to_string(value));
-    }
-
-    void write_function_arg(
-        std::string type_name, std::string parameter_name, void* value)
-    {
-        std::stringstream fmtr;
-
-        fmtr << value;
-        write_function_arg_lms(type_name, parameter_name, fmtr.str());
+        write_function_arg_lms(type_name, parameter_name, value_formatter.to_html());
     }
 
     void write_function_extra_info(std::string info) override

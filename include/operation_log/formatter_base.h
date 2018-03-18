@@ -6,6 +6,9 @@
 #include <vector>
 
 #include "function_info.h"
+#include "value_formatter.h"
+#include "value_formatter_i.h"
+
 
 namespace operation_log
 {
@@ -120,27 +123,7 @@ protected:
     virtual void write_dump_vars_separator()
     {}
 
-    virtual void write_dump_var(std::string name, bool value) = 0;
-
-    virtual void write_dump_var(std::string name, short value) = 0;
-
-    virtual void write_dump_var(std::string name, unsigned short value) = 0;
-
-    virtual void write_dump_var(std::string name, int value) = 0;
-
-    virtual void write_dump_var(std::string name, unsigned int value) = 0;
-
-    virtual void write_dump_var(std::string name, long value) = 0;
-
-    virtual void write_dump_var(std::string name, unsigned long value) = 0;
-
-    virtual void write_dump_var(std::string name, float value) = 0;
-
-    virtual void write_dump_var(std::string name, double value) = 0;
-
-    virtual void write_dump_var(std::string name, long double value) = 0;
-
-    virtual void write_dump_var(std::string name, void* value) = 0;
+    virtual void write_dump_var(std::string name, ValueFormatterI &value_formatter) = 0;
 
     template <typename Var0T>
     void write_vars(Var0T var0)
@@ -149,7 +132,10 @@ protected:
         {
             write_dump_vars_separator();
         }
-        write_dump_var(names[var_i], var0);
+
+        ValueFormatter<Var0T> value_formatter(var0);
+
+        write_dump_var(names[var_i], value_formatter);
         ++var_i;
     }
 
@@ -177,37 +163,7 @@ protected:
     {}
 
     virtual void write_function_arg(
-        std::string type_name, std::string parameter_name, bool value) = 0;
-
-    virtual void write_function_arg(
-        std::string type_name, std::string parameter_name, short value) = 0;
-
-    virtual void write_function_arg(
-        std::string type_name, std::string parameter_name, unsigned short value) = 0;
-
-    virtual void write_function_arg(
-        std::string type_name, std::string parameter_name, int value) = 0;
-
-    virtual void write_function_arg(
-        std::string type_name, std::string parameter_name, unsigned int value) = 0;
-
-    virtual void write_function_arg(
-        std::string type_name, std::string parameter_name, long value) = 0;
-
-    virtual void write_function_arg(
-        std::string type_name, std::string parameter_name, unsigned long value) = 0;
-
-    virtual void write_function_arg(
-        std::string type_name, std::string parameter_name, float value) = 0;
-
-    virtual void write_function_arg(
-        std::string type_name, std::string parameter_name, double value) = 0;
-
-    virtual void write_function_arg(
-        std::string type_name, std::string parameter_name, long double value) = 0;
-
-    virtual void write_function_arg(
-        std::string type_name, std::string parameter_name, void* value) = 0;
+        std::string type_name, std::string parameter_name, ValueFormatterI &value_formatter) = 0;
 
     void write_function_args()
     {}
@@ -219,10 +175,13 @@ protected:
         {
             write_function_args_separator();
         }
+
+        ValueFormatter<Arg0T> value_formatter(arg0);
+
         write_function_arg(
             function_info.get_argument_type(argument_i),
             function_info.get_argument_name(argument_i),
-            arg0);
+            value_formatter);
         ++argument_i;
     }
 
