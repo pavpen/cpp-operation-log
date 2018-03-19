@@ -15,10 +15,24 @@ namespace operation_log
 // to an `std::ostream`.
 class MessageStream : public std::stringstream
 {
-public:
+    private:
+
+    bool is_closed = false;
+
+    public:
+
     ~MessageStream()
     {
-        OperationLogInstance::get().write_message(str());
+        close();
+    }
+
+    void close()
+    {
+        if (!is_closed)
+        {
+            OperationLogInstance::get().write_message(str());
+            is_closed = true;
+        }
     }
 };
 

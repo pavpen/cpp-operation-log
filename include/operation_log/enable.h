@@ -9,6 +9,9 @@
 #undef OPERATION_LOG_DUMP_VARS
 #undef OPERATION_LOG_MESSAGE
 #undef OPERATION_LOG_MESSAGE_STREAM
+#undef OPERATION_LOG_MESSAGE_STREAM_OPEN
+#undef OPERATION_LOG_MESSAGE_STREAM_WRITE
+#undef OPERATION_LOG_MESSAGE_STREAM_CLOSE
 
 
 // Operation logging is enabled for the current code section:
@@ -32,6 +35,15 @@
 
 #define OPERATION_LOG_MESSAGE_STREAM(args)  \
         { operation_log::MessageStream() args; }
+
+#define OPERATION_LOG_MESSAGE_STREAM_OPEN(var_name)  \
+        operation_log::MessageStream var_name;
+
+#define OPERATION_LOG_MESSAGE_STREAM_WRITE(var_name, args)  \
+        { var_name args; }
+
+#define OPERATION_LOG_MESSAGE_STREAM_CLOSE(var_name)  \
+        { var_name.close(); }
 
 #else // OPERATION_LOG_ENABLE
 
