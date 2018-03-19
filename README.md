@@ -34,6 +34,20 @@ OPERATION_LOG_MESSAGE("1/1/1: There was a world.")
 OPERATION_LOG_MESSAGE_STREAM(<<
     "This is like std::ostream: " << var1 << ", " << var2 << ", " << var3)
 
+OPERATION_LOG_MESSAGE_STREAM_OPEN(log_msg)
+
+OPERATION_LOG_MESSAGE_STREAM_WRITE(log_msg, << "Construct message step by step, e.g. in a loop.")
+
+// Write the constructed message to the log:
+OPERATION_LOG_MESSAGE_STREAM_CLOSE(log_msg)
+
+OPERATION_LOG_CODE(
+    // Code only compiled when operation logging is enabled:
+    int vertex_count;
+    // . . .
+    ++vertex_count;
+)
+
 ```
 
 Here's a verbose example:
@@ -45,6 +59,10 @@ template <class HDS>
 class Sphere_3_TessalationBuilder : public CGAL::Modifier_base<HDS>
 {
 private:
+    OPERATION_LOG_CODE(
+        int vertex_count;
+    )
+
     inline void advance_prev_parallel_vertex()
     {
         OPERATION_LOG_ENTER_NO_ARG_FUNCTION(oplog_func);
@@ -80,6 +98,10 @@ private:
             "Vertex " << vertex_count << ": " << point);
 
         // . . . code . . .
+
+        OPERATION_LOG_CODE(
+            vertex_count++;
+        )
 
         OPERATION_LOG_LEAVE_FUNCTION(oplog_func);
     }

@@ -12,6 +12,7 @@
 #undef OPERATION_LOG_MESSAGE_STREAM_OPEN
 #undef OPERATION_LOG_MESSAGE_STREAM_WRITE
 #undef OPERATION_LOG_MESSAGE_STREAM_CLOSE
+#undef OPERATION_LOG_CODE
 
 
 // Operation logging is enabled for the current code section:
@@ -44,6 +45,8 @@
 
 #define OPERATION_LOG_MESSAGE_STREAM_CLOSE(var_name)  \
         { var_name.close(); }
+
+#define OPERATION_LOG_CODE(...)        __VA_ARGS__
 
 #else // OPERATION_LOG_ENABLE
 
