@@ -51,6 +51,7 @@ public:
 public:
     std::string extra_header_code = "";
     static const std::string three_js_header_code;
+    static const std::string math_jax_header_code;
 
 private:
     bool was_header_written;
@@ -262,6 +263,9 @@ private:
 const std::string HtmlFormatter::three_js_header_code =
 #include "html_formatter/three_js.h"
 ;
+
+const std::string HtmlFormatter::math_jax_header_code =
+    "<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML'></script>\n";
 
 
 }
