@@ -1,11 +1,28 @@
 # lib Operation Log
 
-A small C++ library for logging debug messages, such as function entry and
-exit, dumping variables, and creating `std::ostream` messages.
+A C++ library for logging debug messages that can include complex objects,
+such as 3D models, matrices, and other user-defined entities.
 
 It has a basic plain-text formatter, and an HTML formatter which can be used
 to log raw HTML messages (e.g., you can send 3D scenes to you log).  Other
 formatters can be added.
+
+## Features
+
+You can:
+
+* Log function entry and exit.
+* Write a custom function to filter what messages get written to the log.
+* Write formatters for objects of any custom class, or override pre-defined
+  formatters for common object types.
+* Compile out logging based on a macro definition.
+* Temporarily disable logging for a section of source code (such as an include
+  file, or a class).
+* Dump variables.
+* Construct messages using the `std::ostream` style of overloading the `<<`
+  operator.
+* Switch the output format, output file, or filter function at run-time (e.g.,
+  based on a configuration file).
 
 
 ## Example
@@ -21,11 +38,11 @@ Browse one
 You can use macros such as the following:
 
 ```C++
-OPERATION_LOG_ENTER_NO_ARG_FUNCTION(oplog_func)
+OPERATION_LOG_ENTER_NO_ARG_FUNCTION()
 
-OPERATION_LOG_ENTER_FUNCTION(oplog_func, var1, var2)
+OPERATION_LOG_ENTER_FUNCTION(var1, var2)
 
-OPERATION_LOG_LEAVE_FUNCTION(oplog_func)
+OPERATION_LOG_LEAVE_FUNCTION()
 
 OPERATION_LOG_DUMP_VARS(var1, var2)
 
@@ -36,7 +53,8 @@ OPERATION_LOG_MESSAGE_STREAM(<<
 
 OPERATION_LOG_MESSAGE_STREAM_OPEN(log_msg)
 
-OPERATION_LOG_MESSAGE_STREAM_WRITE(log_msg, << "Construct message step by step, e.g. in a loop.")
+OPERATION_LOG_MESSAGE_STREAM_WRITE(log_msg, << "Construct message step by step,")
+OPERATION_LOG_MESSAGE_STREAM_WRITE(log_msg, << "e.g. in a loop.")
 
 // Write the constructed message to the log:
 OPERATION_LOG_MESSAGE_STREAM_CLOSE(log_msg)
@@ -65,7 +83,7 @@ private:
 
     inline void advance_prev_parallel_vertex()
     {
-        OPERATION_LOG_ENTER_NO_ARG_FUNCTION(oplog_func);
+        OPERATION_LOG_ENTER_NO_ARG_FUNCTION();
 
         // . . . code . . .
 
@@ -85,12 +103,12 @@ private:
         // . . . code . . .
 
         OPERATION_LOG_DUMP_VARS(prev_parallel_vertex_i, longitude_difference_subdiv);
-        OPERATION_LOG_LEAVE_FUNCTION(oplog_func);
+        OPERATION_LOG_LEAVE_FUNCTION();
     }
 
     inline void add_vertex(double latitude, double longitude)
     {
-        OPERATION_LOG_ENTER_FUNCTION(oplog_func, latitude / M_PI, longitude / M_PI);
+        OPERATION_LOG_ENTER_FUNCTION(latitude / M_PI, longitude / M_PI);
 
         // . . . code . . .
 
@@ -103,7 +121,7 @@ private:
             vertex_count++;
         )
 
-        OPERATION_LOG_LEAVE_FUNCTION(oplog_func);
+        OPERATION_LOG_LEAVE_FUNCTION();
     }
 };
 ```
