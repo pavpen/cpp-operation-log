@@ -50,6 +50,6 @@
 
 #else // OPERATION_LOG_ENABLE
 
-#include <operation_log/disable.h>
+#include "disable.h"
 
 #endif // OPERATION_LOG_ENABLE

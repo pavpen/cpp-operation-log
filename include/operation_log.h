@@ -7,14 +7,14 @@
 #include <tuple>
 #include <vector>
 
-#include <operation_log/cpp_parsing.h>
-#include <operation_log/function_entry.h>
-#include <operation_log/function_info.h>
-#include <operation_log/html_formatter.h>
-#include <operation_log/message_stream.h>
-#include <operation_log/operation_log_instance.h>
-#include <operation_log/operation_log.h>
-#include <operation_log/plain_text_formatter.h>
+#include "operation_log/cpp_parsing.h"
+#include "operation_log/function_entry.h"
+#include "operation_log/function_info.h"
+#include "operation_log/html_formatter.h"
+#include "operation_log/message_stream.h"
+#include "operation_log/operation_log_instance.h"
+#include "operation_log/operation_log.h"
+#include "operation_log/plain_text_formatter.h"
 
 
 // Should we enable operation logging:
@@ -38,9 +38,9 @@
     (std::tuple_size<decltype(std::make_tuple(__VA_ARGS__))>::value)
 
 #ifdef OPERATION_LOG_ENABLE
-#    include <operation_log/enable.h>
+#    include "operation_log/enable.h"
 #else // OPERATION_LOG_ENABLE
-#    include <operation_log/disable.h>
+#    include "operation_log/disable.h"
 #endif // OPERATION_LOG_ENABLE
 
 #endif // _OPERATION_LOG_H
