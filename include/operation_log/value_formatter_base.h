@@ -67,51 +67,10 @@ class ValueFormatterBase : public ValueFormatterI
 	// }
 };
 
-// Class specialization for `std::string`s:
-template <>
-class ValueFormatterBase<std::string> : public ValueFormatterI
-{
-	public:
-
-	const std::string value;
-
-	ValueFormatterBase(std::string value)
-	: value(value)
-	{}
-
-	std::string to_text() override
-	{
-		std::stringstream res;
-
-		res << '"';
-		for (const auto &ch : value)
-		{
-			switch (ch)
-			{
-				case '"':
-					res << "\\\"";
-					break;
-				case '\r':
-					res << "\\\r";
-					break;
-				case '\n':
-					res << "\\\n";
-					break;
-				default:
-					res << ch;
-			}
-		}
-		res << '"';
-
-		return res.str();
-	}
-
-	std::string to_html() override
-	{
-		return HtmlUtils::escape(to_text());
-	}
-};
-
 }
+
+
+#include "value_formatters/string.h"
+#include "value_formatters/tuple.h"
 
 #endif // _OPERATION_LOG_VALUE_FORMATTER_BASE_H
