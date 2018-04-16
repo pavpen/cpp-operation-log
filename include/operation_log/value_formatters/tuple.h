@@ -12,6 +12,21 @@ namespace operation_log
 template <typename T>
 class ValueFormatter;
 
+namespace helpers
+{
+
+std::string format_to_text(ValueFormatterI &formatter)
+{
+    return formatter.to_text();
+}
+
+std::string format_to_html(ValueFormatterI &formatter)
+{
+    return formatter.to_html();
+}
+
+}
+
 // A default value formatter for the `std::tuple` data type.
 template <typename... Ts>
 class ValueFormatterBase<std::tuple<Ts...>> : public ValueFormatterI
@@ -33,7 +48,7 @@ class ValueFormatterBase<std::tuple<Ts...>> : public ValueFormatterI
         std::stringstream res;
 
         res << "std::tuple( ";
-        write_elements<0, format_to_text>(res);
+        write_elements<0, helpers::format_to_text>(res);
         res << " )";
 
         return res.str();
@@ -45,23 +60,13 @@ class ValueFormatterBase<std::tuple<Ts...>> : public ValueFormatterI
         std::stringstream res;
 
         res << "std::tuple( ";
-        write_elements<0, format_to_html>(res);
+        write_elements<0, helpers::format_to_html>(res);
         res << " )";
 
         return res.str();
     }
 
     private:
-
-    std::string format_to_text(ValueFormatterI &formatter)
-    {
-        return formatter.to_text();
-    }
-
-    std::string format_to_html(ValueFormatterI &formatter)
-    {
-        return formatter.to_html();
-    }
 
     template <std::size_t VarI, std::string FormatFunctor(ValueFormatterI&)>
     inline typename std::enable_if<VarI == sizeof...(Ts), void>::type
