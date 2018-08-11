@@ -75,7 +75,7 @@ private:
 
     inline void add_vertex(double latitude, double longitude)
     {
-        // You can log the parameters values that a function was called with:
+        // You can log the parameter values that a function was called with:
         OPERATION_LOG_ENTER_FUNCTION(latitude / M_PI, longitude / M_PI);
 
         // . . . code . . .

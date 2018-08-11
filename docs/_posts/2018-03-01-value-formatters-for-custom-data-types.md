@@ -8,7 +8,7 @@ categories: examples configuration value-formatters
 
 If you want to dump variables with custom data types to the operation log,
 their values need to be convertable to strings (which get sent to the logs).
-The precedence for converting a `custom_value` to strings is the following
+The precedence for converting a `custom_value` to a string is the following
 (`decltype(custom_value)` means the data type of the `custom_value` variable):
 
 1. `ValueFormatter<decltype(custom_value)>`.
