@@ -19,6 +19,13 @@ else
     exit 1
 fi
 
+if [ $(id -u) != "0" ]; then
+	SUDO=sudo
+else
+	# We're running as root, we don't need sudo:
+	SUDO=""
+fi
+
 case "$PACKAGE_MANAGER" in
     yum)
         if [ -n "$ASSUME_YES" ]; then
@@ -27,7 +34,7 @@ case "$PACKAGE_MANAGER" in
             PACKAGE_MANAGER_ASSUME_YES=""
         fi
 
-        yum install $PACKAGE_MANAGER_ASSUME_YES gcc-c++ cmake
+        $SUDO yum install $PACKAGE_MANAGER_ASSUME_YES gcc-c++ cmake
         ;;
     apt-get)
         if [ -n "$ASSUME_YES" ]; then
@@ -36,6 +43,6 @@ case "$PACKAGE_MANAGER" in
             PACKAGE_MANAGER_ASSUME_YES=""
         fi
 
-        apt-get $PACKAGE_MANAGER_ASSUME_YES install g++ cmake
+        $SUDO apt-get $PACKAGE_MANAGER_ASSUME_YES install g++ cmake
         ;;
 esac
