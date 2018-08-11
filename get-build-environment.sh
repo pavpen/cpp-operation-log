@@ -13,7 +13,7 @@ if [ -f /etc/redhat-release ] && type yum &>/dev/null; then
 elif [ -f /etc/debian_version ] && type apt-get &>/dev/null; then
     PACKAGE_MANAGER="apt-get"
 else
-    echo "No known package manager found (i.e., `yum` on Red Hat, `apt-get` on Debian)!" >&2
+    echo "No known package manager found (i.e., \`yum\` on Red Hat, \`apt-get\` on Debian)!" >&2
     echo "Please install the following manually:" >&2
     echo "  g++ cmake" >&2
     exit 1
