@@ -111,8 +111,16 @@ Browse one
 
 ### Ubuntu 16
 
+#### Get Build Environment
+
 ```BASH
-./build_packages.sh
+./get-build-environment.sh
+```
+
+#### Build and Install
+
+```BASH
+./build-packages.sh
 sudo dpkg -i build/liboperationlog_0.1.0.deb
 ```
 
